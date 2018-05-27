@@ -60,3 +60,9 @@ Then configure your job to use this resource
 ## `out` Configuration
 All configuration of the resource's `source` can be overridden in the notification task's `params`
 Typically, it best to configure common values, e.g. `flow_token`, `flow_api` etc... at the `source` level and configure the message properties, e.g. `event`, `message_body` etc... at the tasks's `params` level
+
+## Contributing
+Please make all pull requests to the master branch and ensure the `out` script tests pass locally.
+
+## License 
+MIT

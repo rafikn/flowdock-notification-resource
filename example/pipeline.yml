@@ -1,0 +1,126 @@
+resource_types:
+- name: flowdock-notification
+  type: docker-image
+  source:
+    repository: rafikn/flowdock-notification-resource
+    tag: test10
+
+resources:
+- name: flowdock-notifier
+  type: flowdock-notification
+  source:
+    author: concourse
+    avatar: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+    flow_token: ((flow_token))
+    flow_api: ((flow_api))
+
+- name: repo
+  type: git
+  source:
+    uri: https://github.com/rafikn/flowdock-notification-resource.git
+
+# Each job will randomly exit with 1 or 0 (to test both success and failure cases)
+jobs:
+- name: test
+  plan:
+  - get: repo
+    trigger: true
+  - task: test
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: alpine
+      run:
+        path: sh
+        args:
+          - -exc
+          - |
+            exit $(($RANDOM%2))
+    on_success:
+      put: flowdock-notifier
+      params:
+        event: activity
+        title: test job success
+        message_body: test job has succeeded
+        status_colour: lime
+        status_value: SUCCESS
+    on_failure:
+      put: flowdock-notifier
+      params:
+        event: activity
+        title: test job failure
+        message_body: test job has failed
+        status_colour: red
+        status_value: FAILURE
+
+- name: build
+  plan:
+  - get: repo
+    passed: [test]
+    trigger: true
+  - task: build
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: alpine
+      run:
+        path: sh
+        args:
+          - -exc
+          - |
+            exit $(($RANDOM%2))
+    on_success:
+      put: flowdock-notifier
+      params:
+        event: activity
+        title: build job success
+        message_body: build job has succeeded
+        status_colour: lime
+        status_value: SUCCESS
+    on_failure:
+      put: flowdock-notifier
+      params:
+        event: activity
+        title: build job failure
+        message_body: build job has failed
+        status_colour: red
+        status_value: FAILURE
+
+- name: deploy
+  plan:
+  - get: repo
+    passed: [build]
+    trigger: true
+  - task: deploy
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: alpine
+      run:
+        path: sh
+        args:
+          - -exc
+          - |
+            exit $(($RANDOM%2))
+    on_success:
+      put: flowdock-notifier
+      params:
+        event: activity
+        title: deploy job success
+        message_body: build job has succeeded
+        status_colour: lime
+        status_value: SUCCESS
+    on_failure:
+      put: flowdock-notifier
+      params:
+        event: message
+        title: WARNING -> deploy job failure
+        message_body: deploy job has failed
+        status_colour: red
+        status_value: FAILURE

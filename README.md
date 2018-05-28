@@ -56,6 +56,7 @@ Then configure your job to use this resource
 * `Title` (`activity` notification only) Title for the thread
 * `status_value` (`activity` notification only) Status text for the thread
 * `status_color` (`activity` notification only) Status colour for the thread
+* `thread_id` Optional. Notifications are threaded by job's name by default or if set to `job_name`. Thread by exact build number if set to `build_number`. Otherwise, thread ID is explicitly set to the configured value of this param.
 
 ## `out` Configuration
 All configuration of the resource's `source` can be overridden in the notification task's `params`

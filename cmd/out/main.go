@@ -78,8 +78,20 @@ func buildRequestData(config *Input) map[string]interface{} {
 	job := os.Getenv(BuildJobName)
 	build := os.Getenv(BuildName)
 
-	externalThreadId := fmt.Sprintf("%s_%s_%s", team, pipeline, job)
-	threadTitle := fmt.Sprintf("%s | %s | %s [%s]", pipeline, job, build, params.StatusValue)
+	threadId := source.ThreadId
+	if params.ThreadId != "" {
+		threadId = params.ThreadId
+	}
+	externalThreadId := threadId
+	switch threadId {
+	case "", "job_name":
+		externalThreadId = fmt.Sprintf("%s_%s_%s", team, pipeline, job)
+	case "build_number":
+		externalThreadId = fmt.Sprintf("%s_%s_%s_%s", team, pipeline, job, build)
+	}
+
+	threadTitle := fmt.Sprintf("%s | %s | %s", pipeline, job, build)
+	eventTitle := fmt.Sprintf("%s | %s | %s [%s]", pipeline, job, build, params.StatusValue)
 
 	jsonData := map[string]interface{}{
 		"flow_token": flowToken,
@@ -89,7 +101,7 @@ func buildRequestData(config *Input) map[string]interface{} {
 			"name":   authorName,
 			"avatar": authorAvatar,
 		},
-		"title":              threadTitle,
+		"title":              eventTitle,
 		"external_thread_id": externalThreadId,
 		"thread": map[string]interface{}{
 			"title": threadTitle,
@@ -157,6 +169,7 @@ type Resource struct {
 	MessageBody  string `json:"message_body"`
 	StatusColour string `json:"status_colour"`
 	StatusValue  string `json:"status_value"`
+	ThreadId     string `json:"thread_id"`
 }
 
 type Input struct {

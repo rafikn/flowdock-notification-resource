@@ -91,7 +91,12 @@ func buildRequestData(config *Input) map[string]interface{} {
 	}
 
 	threadTitle := fmt.Sprintf("%s | %s | %s", pipeline, job, build)
-	eventTitle := fmt.Sprintf("%s | %s | %s [%s]", pipeline, job, build, params.StatusValue)
+	eventTitle := params.MessageTitle
+	if eventTitle == "" {
+		eventTitle = fmt.Sprintf("%s | %s | %s [%s]", pipeline, job, build, params.StatusValue)
+	} else {
+		eventTitle = fmt.Sprintf("%s #%s", eventTitle, build)
+	}
 
 	jsonData := map[string]interface{}{
 		"flow_token": flowToken,
@@ -165,7 +170,7 @@ type Resource struct {
 	Event        string `json:"event"`
 	Author       string `json:"author"`
 	Avatar       string `json:"avatar"`
-	Title        string `json:"title"`
+	MessageTitle        string `json:"message_title"`
 	MessageBody  string `json:"message_body"`
 	StatusColour string `json:"status_colour"`
 	StatusValue  string `json:"status_value"`

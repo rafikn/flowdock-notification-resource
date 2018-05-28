@@ -4,6 +4,7 @@ import (
 	"testing"
 	"strings"
 	"os"
+	"fmt"
 )
 
 func TestReadInput(t *testing.T) {
@@ -51,7 +52,7 @@ func TestBuildRequestData(t *testing.T) {
 	}
 }
 
-func TestExternalUrl(t *testing.T)  {
+func TestExternalUrl(t *testing.T) {
 	buildName := "1"
 	buildJobName := "build"
 	buildPipelineName := "pipeline"
@@ -65,8 +66,50 @@ func TestExternalUrl(t *testing.T)  {
 	os.Setenv("ATC_EXTERNAL_URL", atcExternalUrl)
 
 	expected := "http://ci.url/teams/team/pipelines/pipeline/jobs/build/builds/1"
-	url :=externalUrl()
+	url := externalUrl()
 	if strings.Compare(url, expected) != 0 {
 		t.Errorf("Message body url was incorrect, expected: %s, got: %s", expected, url)
+	}
+}
+
+func TestMessageTitle(t *testing.T) {
+	buildName := "1"
+	buildJobName := "build"
+	buildPipelineName := "pipeline"
+
+	os.Setenv("BUILD_NAME", buildName)
+	os.Setenv("BUILD_JOB_NAME", buildJobName)
+	os.Setenv("BUILD_PIPELINE_NAME", buildPipelineName)
+
+	sample := `{"source":{},"params":{"message_title":"test title"}}`
+
+	var input Input
+	readInput([]byte(sample), &input)
+
+	requestData := buildRequestData(&input)
+	eventTitle := fmt.Sprintf("%s #%s", "test title", buildName)
+	if strings.Compare(requestData["title"].(string), eventTitle) != 0 {
+		t.Errorf("Request message title was incorrect, expected: %s, got: %s", eventTitle, requestData["title"])
+	}
+}
+
+func TestEventMessageTitle(t *testing.T) {
+	buildName := "1"
+	buildJobName := "build"
+	buildPipelineName := "pipeline"
+
+	os.Setenv("BUILD_NAME", buildName)
+	os.Setenv("BUILD_JOB_NAME", buildJobName)
+	os.Setenv("BUILD_PIPELINE_NAME", buildPipelineName)
+
+	sample := `{"source":{},"params":{"message_title":"", "status_value": "success"}}`
+
+	var input Input
+	readInput([]byte(sample), &input)
+
+	requestData := buildRequestData(&input)
+	eventTitle := fmt.Sprintf("%s | %s | %s [%s]", buildPipelineName, buildJobName, buildName, "success")
+	if strings.Compare(requestData["title"].(string), eventTitle) != 0 {
+		t.Errorf("Request message title was incorrect, expected: %s, got: %s", eventTitle, requestData["title"])
 	}
 }

@@ -33,7 +33,7 @@ Then configure your job to use this resource
       put: flowdock-notifier
       params:
         event: activity
-        title: sample_task job success
+        message_title: sample_task job success
         message_body: sample_task job has succeeded
         status_colour: lime
         status_value: SUCCESS
@@ -41,7 +41,7 @@ Then configure your job to use this resource
       put: flowdock-notifier
       params:
         event: activity
-        title: sample_task job failure
+        message_title: sample_task job failure
         message_body: sample_task job has failed
         status_colour: red
         status_value: FAILURE
@@ -52,15 +52,17 @@ Then configure your job to use this resource
 * `author` Username associated with the notification
 * `avatar` Avatar associated with the notification
 * `event` Can be `activity` or `message`. `activity` notifications are shown in the Inbox of the flow. `message` notification appear in the main thread
-* `message_body` Text of the message
-* `Title` (`activity` notification only) Title for the thread
-* `status_value` (`activity` notification only) Status text for the thread
-* `status_color` (`activity` notification only) Status colour for the thread
-* `thread_id` Optional. Notifications are threaded by job's name by default or if set to `job_name`. Thread by exact build number if set to `build_number`. Otherwise, thread ID is explicitly set to the configured value of this param.
 
 ## `out` Configuration
+* `message_body` Required. Text of the message.
+* `message_title` Optional. (`activity` notification only) Title for the message. If provided, the build number will be appended to it, if none provided, the default pattern is `pipeline | job | build | [status]`
+* `status_value` Required. (`activity` notification only) Status label for the thread
+* `status_color` Required. (`activity` notification only) Background colour for the status label
+* `thread_id` Optional. Notifications are threaded by job's name by default or if set to `job_name`. Thread by exact build number if set to `build_number`. Otherwise, thread ID is explicitly set to the configured value of this param.
+
 All configuration of the resource's `source` can be overridden in the notification task's `params`
-Typically, it best to configure common values, e.g. `flow_token`, `flow_api` etc... at the `source` level and configure the message properties, e.g. `event`, `message_body` etc... at the tasks's `params` level
+
+Typically, it's best to configure common values, e.g. `flow_token`, `flow_api` etc... at the `source` level and configure the message properties, e.g. `event`, `message_body` etc... at the tasks's `params` level
 
 ## Contributing
 Please make all pull requests to the master branch and ensure the `out` script tests pass locally.

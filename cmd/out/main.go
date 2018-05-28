@@ -13,12 +13,12 @@ import (
 func metadataMap() []map[string]string {
 	metadataMap := make([]map[string]string, 6)
 
-	metadataMap[0] = buildField(BuildId, os.Getenv(BuildId))
-	metadataMap[1] = buildField(BuildName, os.Getenv(BuildName))
-	metadataMap[2] = buildField(BuildJobName, os.Getenv(BuildJobName))
-	metadataMap[3] = buildField(BuildPipelineName, os.Getenv(BuildPipelineName))
-	metadataMap[4] = buildField(BuildTeamName, os.Getenv(BuildTeamName))
-	metadataMap[5] = buildField(AtcExternalUrl, os.Getenv(AtcExternalUrl))
+	metadataMap[0] = buildField("Team", os.Getenv(BuildTeamName))
+	metadataMap[1] = buildField("Pipeline", os.Getenv(BuildPipelineName))
+	metadataMap[2] = buildField("Job", os.Getenv(BuildJobName))
+	metadataMap[3] = buildField("Build Number", os.Getenv(BuildName))
+	metadataMap[4] = buildField("Build ID", os.Getenv(BuildId))
+	metadataMap[5] = buildField("Concourse URL", os.Getenv(AtcExternalUrl))
 
 	return metadataMap
 }

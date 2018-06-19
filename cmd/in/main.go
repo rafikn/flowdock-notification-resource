@@ -1,19 +1,11 @@
 package main
 
 import (
-	"encoding/json"
+	"fmt"
 	"os"
-	"strconv"
 	"time"
 )
 
-type Version struct {
-	Ref string `json:"ref"`
-}
-
 func main() {
-	version := Version{
-		Ref: strconv.FormatInt(time.Now().Unix(), 10),
-	}
-	json.NewEncoder(os.Stdout).Encode(version)
+	os.Stdout.Write([]byte(fmt.Sprintf("{ \"version\" :{ \"ref\" :\"%d\"}}", time.Now().Unix())))
 }

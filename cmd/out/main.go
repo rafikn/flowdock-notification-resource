@@ -7,7 +7,6 @@ import (
 	"bufio"
 	"net/http"
 	"bytes"
-	"time"
 )
 
 func metadataMap() []map[string]string {
@@ -161,7 +160,7 @@ func main() {
 	}
 
 	sendRequest(requestUrl, requestData)
-	os.Stdout.Write([]byte(fmt.Sprintf("{ \"version\" :{ \"ref\" :\"%d\"}}", time.Now().Unix())))
+	os.Stdout.Write([]byte(fmt.Sprintf("{ \"version\" :{ \"ref\" :\"%s\"}}", input.Params.StatusValue)))
 }
 
 type Resource struct {

@@ -1,6 +1,7 @@
 FROM golang:alpine as builder
 
 COPY . /go/src/github.com/rafikn/flowdock-notification-resource
+COPY ./vendor/src/github.com/blang/semver /go/src/github.com/blang/semver
 
 ENV CGO_ENABLED 0
 
@@ -16,4 +17,3 @@ RUN apk add --update --no-cache ca-certificates
 
 COPY --from=builder assets/ /opt/resource/
 RUN chmod +x /opt/resource/*
-

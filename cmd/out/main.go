@@ -1,12 +1,16 @@
 package main
 
 import (
-	"os"
+	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"bufio"
+	"io/ioutil"
 	"net/http"
-	"bytes"
+	"os"
+	"strings"
+
+	"github.com/blang/semver"
 )
 
 func metadataMap() []map[string]string {
@@ -90,6 +94,7 @@ func buildRequestData(config *Input) map[string]interface{} {
 	}
 
 	threadTitle := fmt.Sprintf("%s | %s | %s", pipeline, job, build)
+
 	eventTitle := params.MessageTitle
 	if eventTitle == "" {
 		eventTitle = fmt.Sprintf("%s | %s | %s [%s]", pipeline, job, build, params.StatusValue)
@@ -97,10 +102,36 @@ func buildRequestData(config *Input) map[string]interface{} {
 		eventTitle = fmt.Sprintf("%s #%s", eventTitle, build)
 	}
 
+	messageBody := params.MessageBody // only used when event == message
+
+	if params.VersionFile != "" {
+		workdir := os.Args[1] // per concourse spec first arg is the target dir
+		versionFilePath := fmt.Sprintf("%s/%s", workdir, params.VersionFile)
+
+		version, err := ioutil.ReadFile(versionFilePath)
+		if err != nil {
+			panic(err)
+		}
+
+		_, err = semver.Parse(fmt.Sprintf("%s", version)) // parse to validate the semver
+		if err != nil {
+			panic(err)
+		}
+
+		// TODO: If %version% present in either of MessageBody or MessageTitle replace
+		if strings.Contains(eventTitle, `%version%`) {
+			eventTitle = strings.Replace(eventTitle, `%version%`, fmt.Sprintf("%s", version), -1)
+		}
+
+		if strings.Contains(messageBody, `%version%`) {
+			messageBody = strings.Replace(messageBody, `%version%`, fmt.Sprintf("%s", version), -1)
+		}
+	}
+
 	jsonData := map[string]interface{}{
 		"flow_token": flowToken,
 		"event":      event,
-		"content":    params.MessageBody, // only used when event == message
+		"content":    messageBody, // only used when event == message
 		"author": map[string]string{
 			"name":   authorName,
 			"avatar": authorAvatar,
@@ -109,7 +140,7 @@ func buildRequestData(config *Input) map[string]interface{} {
 		"external_thread_id": externalThreadId,
 		"thread": map[string]interface{}{
 			"title": threadTitle,
-			"body":  params.MessageBody,
+			"body":  messageBody,
 			"status": map[string]string{
 				"color": params.StatusColour,
 				"value": params.StatusValue,
@@ -169,11 +200,12 @@ type Resource struct {
 	Event        string `json:"event"`
 	Author       string `json:"author"`
 	Avatar       string `json:"avatar"`
-	MessageTitle        string `json:"message_title"`
+	MessageTitle string `json:"message_title"`
 	MessageBody  string `json:"message_body"`
 	StatusColour string `json:"status_colour"`
 	StatusValue  string `json:"status_value"`
 	ThreadId     string `json:"thread_id"`
+	VersionFile  string `json:"version_file"` //e.g. a version file as required by the semver resource.
 }
 
 type Input struct {

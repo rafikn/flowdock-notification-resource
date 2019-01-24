@@ -13,7 +13,7 @@ resource_types:
   type: docker-image
   source:
     repository: rafikn/flowdock-notification-resource
-    
+
 resources:
 - name: flowdock-notifier
   type: flowdock-notification
@@ -59,6 +59,7 @@ Then configure your job to use this resource
 * `status_value` Required. (`activity` notification only) Status label for the thread
 * `status_color` Required. (`activity` notification only) Background colour for the status label
 * `thread_id` Optional. Notifications are threaded by job's name by default or if set to `job_name`. Thread by exact build number if set to `build_number`. Otherwise, thread ID is explicitly set to the configured value of this param.
+* `version_file` Optional. Logical path to a version file as the concourse semver resource would expect. `message_title` and `message_body` can then include the text `%version%`, which will be substituted by the version number at runtime. Useful for application release messages.
 
 All configuration of the resource's `source` can be overridden in the notification task's `params`
 
@@ -67,5 +68,5 @@ Typically, it's best to configure common values, e.g. `flow_token`, `flow_api` e
 ## Contributing
 Please make all pull requests to the master branch and ensure the `out` script tests pass locally.
 
-## License 
+## License
 MIT

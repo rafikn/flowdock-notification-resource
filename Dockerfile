@@ -13,7 +13,7 @@ WORKDIR github.com/rafikn/flowdock-notification-resource
 FROM alpine:edge AS resource
 
 RUN apk add --update --no-cache ca-certificates
+RUN apk add curl
 
 COPY --from=builder assets/ /opt/resource/
 RUN chmod +x /opt/resource/*
-

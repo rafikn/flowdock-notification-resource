@@ -9,6 +9,7 @@ RUN go build -o /assets/in github.com/rafikn/flowdock-notification-resource/cmd/
 RUN go build -o /assets/out github.com/rafikn/flowdock-notification-resource/cmd/out
 RUN go build -o /assets/check github.com/rafikn/flowdock-notification-resource/cmd/check
 
+
 WORKDIR github.com/rafikn/flowdock-notification-resource
 
 FROM alpine:edge AS resource
@@ -18,3 +19,6 @@ RUN apk add curl
 
 COPY --from=builder assets/ /opt/resource/
 RUN chmod +x /opt/resource/*
+
+COPY --from=builder /go/src/github.com/rafikn/flowdock-notification-resource/version /opt/resource/
+ENV VERSIONPATH /opt/resource/version

@@ -7,6 +7,29 @@ import (
 	"io/ioutil"
 )
 
+/*
+	RESOURCE CHECK COMMAND
+
+	Reads contents of version file from $VERSIONPATH and returns that version.
+
+	Note: this is not quite coded to spec per the Concourse CI custom resource guide.
+	The check command should return an array of versions after retrieving them from
+	the target repository. (e.g. git hashes, ecr hashes, ... ).
+	If an input version param is given, that version should be returned in the array if it exists.
+	(Spec: https://concourse-ci.org/implementing-resources.html)
+
+	INSTEAD: We are returning a single semver from the version file as the only element
+	in the versions array. The assumption being that the version file always indicates the latest version.
+	We are ignoring any version params to the resource definition beyond the repository and tag params.
+
+	One possible advantage is that we can refer to the version file using a semver resource in a pipeline.
+	That will let us build this image and automatically increment the version in the pipeline rather than
+	populating the version file manually.
+
+	FUTURE WORK: this could use the aws sdk to retrive a list of all digests from ECR and return those instead.
+	That could then respect the version param to check if a given hash is in the list.
+*/
+
 type Version struct {
 	Ref string `json:"ref"`
 }
